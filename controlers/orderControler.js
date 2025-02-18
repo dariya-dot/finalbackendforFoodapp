@@ -17,7 +17,7 @@ const placeOrder = async (req, res) => {
   try {
 
     const { orderData,orderId,userId } = req.body;
-    
+    console.log(userId)
 const user = await User.findOne({userId})
     if (user) {
       const newOrder = new Order({
