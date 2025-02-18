@@ -1,7 +1,7 @@
 const Order = require("../models/Order");
 const multer=require('multer')
 const User=require('../models/User')
-// const { initiatePhonePePayment } = require("./paymentController");
+
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -33,6 +33,7 @@ const user = await User.findOne({userId})
       await newOrder.save();
       user.orders.push(newOrder._id);
       await user.save()
+      console.log(newOrder)
       res.json({ success: true, message: "Order placed successfully!" });
     } else {
       res.status(400).json({ success: false, message: "user not saved" });
