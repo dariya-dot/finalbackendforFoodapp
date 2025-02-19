@@ -1,60 +1,53 @@
 const Order = require("../models/Order");
-const multer=require('multer')
-const User=require('../models/User')
 
+const User = require("../models/User");
 
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, 'uploads/'); // Destination folder where the uploaded images will be stored
-    },
-    filename: function(req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname)); // Generating a unique filename
-    }
-  });
 
 
 const placeOrder = async (req, res) => {
   try {
-
-    const { orderData,orderId,userId } = req.body;
+    const { orderData, orderId, userId } = req.body;
+    if (!orderData || !orderData.Address || !orderData.order || !orderData.totalAmount) {
+      return res.status(400).json({ success: false, message: "Invalid order data" });
+    }
     console.log(userId)
-const user = await User.findOne({userId})
-    if (user) {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(400).json({ success: false, message: "user not saved" });
+    } else {
       const newOrder = new Order({
-        userId:userId,
-        orderId:orderId,
-        Address:orderData.Address,
-        items:orderData.order,
-        totalAmount:orderData.totalAmount,
-        payment:"Paid",
-        status:"order Placed"
+        userId: userId,
+        orderId: orderId,
+        Address: orderData.Address,
+        items: orderData.order,
+        totalAmount: orderData.totalAmount,
+        payment: "Paid",
+        status: "order Placed",
       });
-
       await newOrder.save();
       user.orders.push(newOrder._id);
-      await user.save()
-      console.log(newOrder)
-      res.json({ success: true, message: "Order placed successfully!" });
-    } else {
-      res.status(400).json({ success: false, message: "user not saved" });
+      await user.save();
+
+      console.log(newOrder);
+      res.json({
+        success: true,
+        order: newOrder,
+        message: "Order placed successfully!",
+      });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-
-
 };
 
 const getOrderDetails = async (req, res) => {
   try {
-    const { userId } = req.params; 
-    const user = await User.findById(userId).populate('orders'); 
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("orders");
     if (user) {
-     
       res.json({ success: true, orders: user.orders });
     } else {
-    
       res.status(404).json({ success: false, message: "User not found" });
     }
   } catch (error) {
@@ -63,7 +56,4 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
-module.exports = { placeOrder ,getOrderDetails};
-
-
-
+module.exports = { placeOrder, getOrderDetails };

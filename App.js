@@ -20,7 +20,7 @@ mongoose.connect(process.env.URI)
 .then(()=>{console.log("the Mongoose connection is sucessful")})
 .catch((error)=>{console.error(error)})
 app.get('/',(req,res)=>{
-    res.send("hello")
+    res.send("backend food app")
 })
 
 app.use(express.urlencoded({extended:true}))
